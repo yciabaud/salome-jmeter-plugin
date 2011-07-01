@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<project default="maketgz" basedir=".">
+
+	<!-- =================================================================== -->
+	<!-- Help of the program                                                 -->
+	<!-- =================================================================== -->
+	<target name="help">
+		<echo message="JMeterIntegration plugin compilation"/>
+		<echo message=" Here is a list of possible targets: "/>
+		<echo message=" maketgz..........Create the tgz dist file (default)"/>
+		<echo message=" signjar..........Sign the jar file"/>
+		<echo message=" makejar..........Create the jar file"/>
+		<echo message=" compile..........Compiles the plugin"/>
+		<echo message=" clean............Clean project files"/>
+	 </target>
+	
+	<!-- =================================================================== -->	
+	<!-- Properties' initialization                                          -->
+	<!-- =================================================================== -->
+	<target name="init">
+		<property name="name" value="JMeterIntegration"/>
+		<property name="version" value="3"/>
+		<property name="build.compiler" value="modern"/>
+		<property name="debug" value="off"/>
+		<property name="optimize" value="on"/>
+		<property name="deprecation" value="off"/>
+		<property name="src.dir" value="./src_JMeterIntegration"/>
+		<property name="srcdoc.dir" value="./docs/src"/>
+		<property name="build.dir" value="./build"/>
+		<property name="dist.dest" value="./distrib"/>
+		<property name="salome.classes" value="../../classes"/>
+		<property name="salome.libs" value="./libs/salome.jar"/>
+		<property name="jpf.libs" value="../../libs/jpf-0.3.jar"/>
+		<property name="plugin.libs" value="./libs/junit.jar;./libs/junit-4.3.1.jar"/>
+		<property name="package.dest" value="./build/salomeTMF_plug/JMeterIntegration"/>
+		<property name="keyfile" value="../../jarkey/key_ftrd_salome_tmf"/>
+		<property name="keyname" value="salome_tmf"/>
+		<property name="keypass" value="melosa"/>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Prepares the build directories                                      -->
+	<!-- =================================================================== -->
+	
+	<target name="prepare" depends="init">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${dist.dest}"/>
+		<mkdir dir="${dist.dest}/${name}"/>
+		<copy todir="${dist.dest}/${name}"> 
+			<fileset file="${src.dir}/plugins/${name}/plugin.xml" />
+			<fileset file="${src.dir}/plugins/${name}/${name}.jnlp" /> 
+		</copy>
+		<mkdir dir="${dist.dest}/${name}/libs"/>
+		<copy todir="${dist.dest}/${name}/libs"> <fileset dir="./libs/" includes="*"/> </copy>
+		<copy todir="${dist.dest}/${name}/docs/pdf">
+			<fileset dir="./docs" includes="**" excludes="src/"/>
+		</copy>
+	</target>
+	
+
+	<!-- =================================================================== -->
+	<!-- Compiles the source directory                                       -->
+	<!-- =================================================================== -->
+	<target name="compile" depends="prepare">
+		
+		<javac srcdir="${src.dir}"
+			classpath="${jpf.libs}:${plugin.libs}:${salome.classes}:${salome.libs}"
+			destdir="${build.dir}"
+			debug="${debug}"
+			deprecation="${deprecation}"
+			optimize="${optimize}"
+			compiler="${build.compiler}"
+			includeAntRuntime="false"/>	 
+		<mkdir dir="${package.dest}/resources"/>
+		<copy todir="${package.dest}/resources"> <fileset file="${src.dir}/salomeTMF_plug/JMeterIntegration/resources/jmeterlogo.gif"/> </copy>
+		<mkdir dir="${dist.dest}/${name}/docs/html"/>			
+		<copy todir="${dist.dest}/${name}/docs/html"> <fileset dir="${src.dir}/plugins/${name}/docs/html/" includes="**"/> </copy>
+		
+		<mkdir dir="${package.dest}/languages/"/>
+		<copy todir="${package.dest}/languages/">
+			<fileset dir="${src.dir}/salomeTMF_plug/JMeterIntegration/languages/" includes="**"/>
+		</copy>
+		
+	</target>
+
+	
+	<!-- =================================================================== -->
+	<!-- Creates the jar archive                                             -->
+	<!-- =================================================================== -->
+	<target name="makejar" depends="compile">
+		<jar jarfile="${dist.dest}/${name}/${name}.jar"
+			compress="true"
+			basedir="${build.dir}"/>	
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Signe the jar file                                                  -->
+	<!-- =================================================================== -->
+	<target name="signjar" depends="makejar">
+		<signjar jar="${dist.dest}/${name}/${name}.jar" 
+			verbose="true"
+			alias ="${keyname}"
+			storepass="${keypass}"
+			keystore="${keyfile}" />
+		
+		<signjar jar="${dist.dest}/${name}/libs/junit.jar" 
+			verbose="true"
+			alias ="${keyname}"
+			storepass="${keypass}"
+			keystore="${keyfile}" />
+		
+		<signjar jar="${dist.dest}/${name}/libs/httpunit.jar" 
+					verbose="true"
+					alias ="${keyname}"
+					storepass="${keypass}"
+					keystore="${keyfile}" />
+			
+		<signjar jar="${dist.dest}/${name}/libs/junit-4.3.1.jar" 
+						verbose="true"
+						alias ="${keyname}"
+						storepass="${keypass}"
+						keystore="${keyfile}" />
+		
+		<signjar jar="${dist.dest}/${name}/libs/jwebunit-core-1.4.1.jar" 
+								verbose="true"
+								alias ="${keyname}"
+								storepass="${keypass}"
+								keystore="${keyfile}" />
+		
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Creates the plugin documentation                                    -->
+	<!-- =================================================================== -->
+	<target name="makedoc_html_fr" depends="init">
+		<copy todir="${srcdoc.dir}/fr"> <fileset dir="./${srcdoc.dir}/figures" includes="*.jpg"/> </copy>
+		<exec dir="${srcdoc.dir}/fr" executable="latex" >
+			<arg line="${name}.tex"/>
+		</exec>
+		<exec dir="${srcdoc.dir}" executable="latex2html" >
+			<arg line="-split 1 -no_navigation -dir ../../${src.dir}/plugins/${name}/docs/html/fr  -no_footnode fr/${name}.tex"/>
+		</exec>
+		<copy file="${srcdoc.dir}/fr/toc.xml" todir="${src.dir}/plugins/${name}/docs/html/fr"/>
+		<delete> <fileset dir="${srcdoc.dir}/fr" includes="*.jpg"/> </delete>
+		<delete> <fileset dir="${srcdoc.dir}/fr" includes="*.aux,*.dvi,*.toc,*.log,*.out,*.cb"/> </delete>
+		<delete> <fileset dir="${src.dir}/plugins/${name}/docs/html/fr" includes="*.pl"/> </delete>
+		<delete> <fileset dir="${src.dir}/plugins/${name}/docs/html/fr/" includes="WARNINGS"/> </delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${src.dir}/plugins/${name}/docs/html/fr/TMP" includes="**" defaultexcludes="no"/>
+		</delete>
+	</target>
+	
+	<target name="makedoc_html_en" depends="init">
+		<copy todir="${srcdoc.dir}/en"> <fileset dir="./${srcdoc.dir}/figures" includes="*.jpg"/> </copy>
+		<exec dir="${srcdoc.dir}/en" executable="latex" >
+			<arg line="${name}.tex"/>
+		</exec>
+		<exec dir="${srcdoc.dir}" executable="latex2html" >
+			<arg line="-split 1 -no_navigation -dir ../../${src.dir}/plugins/${name}/docs/html/en  -no_footnode en/${name}.tex"/>
+		</exec>
+		<copy file="${srcdoc.dir}/en/toc.xml" todir="${src.dir}/plugins/${name}/docs/html/en"/>
+		<delete> <fileset dir="${srcdoc.dir}/en" includes="*.jpg"/> </delete>
+		<delete> <fileset dir="${srcdoc.dir}/en" includes="*.aux,*.dvi,*.toc,*.log,*.out,*.cb"/> </delete>
+		<delete> <fileset dir="${src.dir}/plugins/${name}/docs/html/en" includes="*.pl"/> </delete>
+		<delete> <fileset dir="${src.dir}/plugins/${name}/docs/html/en/" includes="WARNINGS"/> </delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${src.dir}/plugins/${name}/docs/html/en/TMP" includes="**" defaultexcludes="no"/>
+		</delete>
+	</target>
+		
+	<target name="makedoc_pdf_fr" depends="init">
+		<exec dir="${srcdoc.dir}/fr" executable="latex" >
+			<arg line="-output-directory=../../fr ${name}.tex"/>
+		</exec>	
+		<exec dir="${srcdoc.dir}/fr" executable="latex" >
+			<arg line="-output-format=pdf -output-directory=../../fr ${name}.tex"/>
+		</exec>
+		<delete> <fileset dir="./docs/fr" includes="*.aux,*.dvi,*.toc,*.log,*.out,*.cb"/> </delete>
+	</target>
+	
+	<target name="makedoc_pdf_en" depends="init">
+		<exec dir="${srcdoc.dir}/en" executable="latex" >
+			<arg line="-output-directory=../../en ${name}.tex"/>
+		</exec>	
+		<exec dir="${srcdoc.dir}/en" executable="latex" >
+			<arg line="-output-format=pdf -output-directory=../../en ${name}.tex"/>
+		</exec>
+		<delete> <fileset dir="./docs/en" includes="*.aux,*.dvi,*.toc,*.log,*.out,*.cb"/> </delete>
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Creates the all documentation files                                               -->
+	<!-- =================================================================== -->
+	<target name="makedoc" depends="makedoc_html_fr, makedoc_html_en, makedoc_pdf_fr, makedoc_pdf_en">	
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Creates the tgz file                                           -->
+	<!-- =================================================================== -->
+	<target name="maketgz" depends="signjar">
+		<delete file="${dist.dest}/${name}-${version}.zip"/>
+		<zip destfile="${dist.dest}/${name}-${version}.zip"
+			basedir="${dist.dest}"/>
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Creates the all files                                               -->
+	<!-- =================================================================== -->
+	<target name="makeall" depends="makedoc, maketgz">	
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Cleans everything                                                   -->
+	<!-- =================================================================== -->
+	<target name="clean" depends="init">
+		<delete includeemptydirs="true">
+			<fileset dir="${build.dir}" includes="**" defaultexcludes="no"/>
+		</delete>
+		<delete includeemptydirs="true">
+			<fileset dir="${dist.dest}" includes="**" defaultexcludes="no"/>
+		</delete>
+	</target>
+	
+</project>

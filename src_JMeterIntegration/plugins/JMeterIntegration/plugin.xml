@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 0.2" "http://jpf.sourceforge.net/plugin_0_2.dtd">
+<plugin id="JMeterIntegration" version="1" class="salomeTMF_plug.JMeterIntegration.JMeterIntegrationPlugin">
+    <requires>
+		<import plugin-id="core"/>
+	</requires>
+    <runtime>
+        <library id="JMeterIntegration" path="JMeterIntegration/JMeterIntegration.jar" type="code"/>   
+		
+		<!-- JMeter libs...
+		<library id="jmeter" path="JMeterIntegration/libs/junit.jar" type="code"/>
+		-->
+	</runtime>
+	<extension plugin-id="core" point-id="TestDriver" id="JMeterIntegration.TestDriver">
+		<parameter id="class" value="salomeTMF_plug.JMeterIntegration.JMeterIntegrationPlugin"/>
+		<parameter id="name" value="Junit"/>
+		<parameter id="description" value="Plugin JMeter pour la definition et de plans de test"/>
+        <parameter id="extensions" value=".jmx"/>
+	</extension>
+    <extension plugin-id="core" point-id="Common" id="JMeterIntegration.Common">
+		<parameter id="class" value="salomeTMF_plug.JMeterIntegration.JMeterIntegrationPlugin"/>
+		<parameter id="name" value="JMeterTestSuite"/>
+		<parameter id="description" value="Creation de suite JMeter"/>
+	</extension>
+</plugin>
