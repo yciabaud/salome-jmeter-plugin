@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 0.2" "http://jpf.sourceforge.net/plugin_0_2.dtd">
-<plugin id="JMeterIntegration" version="1" class="salomeTMF_plug.JMeterIntegration.JMeterIntegrationPlugin">
-        <requires>
-		<import plugin-id="core"/>
+<plugin id="JMeterIntegration" version="1"
+	class="salomeTMF_plug.JMeterIntegration.JMeterIntegrationPlugin">
+	<requires>
+		<import plugin-id="core" />
 	</requires>
-        
-	<extension plugin-id="core" point-id="TestDriver" id="simpleJunit.TestDriver">
-		<parameter id="class" value="salomeTMF_plug.JMeterIntegration.JMeterIntegrationPlugin"/>
-		<parameter id="name" value="JMeterTestPlan"/>
-		<parameter id="description" value="Plugin JMeter pour la definition de plan de tests"/>
-                <parameter id="extensions" value=".jmx"/>
+
+	<extension plugin-id="core" point-id="TestDriver"
+		id="JMeterIntegration.TestDriver">
+		<parameter id="class"
+			value="salomeTMF_plug.JMeterIntegration.JMeterIntegrationPlugin" />
+		<parameter id="name" value="JMeterTestPlan" />
+		<parameter id="description"
+			value="Plugin JMeter pour la definition de plan de tests" />
+		<parameter id="extensions" value=".jmx" />
 	</extension>
-        <extension plugin-id="core" point-id="Common" id="simpleJunit.Common">
-		<parameter id="class" value="salomeTMF_plug.JMeterIntegration.JMeterIntegrationPlugin"/>
-		<parameter id="name" value="JunitTestSuite"/>
-		<parameter id="description" value="Creation de suite Junit"/>
+	<extension plugin-id="core" point-id="Common"
+		id="JMeterIntegration.Common">
+		<parameter id="class"
+			value="salomeTMF_plug.JMeterIntegration.JMeterIntegrationPlugin" />
+		<parameter id="name" value="JunitTestSuite" />
+		<parameter id="description" value="Creation de suite JMeter" />
 	</extension>
 </plugin>

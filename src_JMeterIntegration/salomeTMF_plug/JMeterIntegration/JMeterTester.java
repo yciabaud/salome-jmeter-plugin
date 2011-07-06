@@ -23,18 +23,14 @@
 
 package salomeTMF_plug.JMeterIntegration;
 
-import java.awt.Color;
-import java.awt.FlowLayout;
 import java.io.File;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JFileChooser;
-import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import org.objectweb.salome_tmf.data.Attachment;

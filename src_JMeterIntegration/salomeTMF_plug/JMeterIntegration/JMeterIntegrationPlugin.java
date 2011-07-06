@@ -430,69 +430,6 @@ public class JMeterIntegrationPlugin extends Plugin implements TestDriver,
 		}
 	}
 
-	void createBeanshellJunitSuitePerformed() {
-		Project pProject = DataModel.getCurrentProject();
-		TestList pTestList = null;
-		Family pFamily = null;
-		Test pTest = null;
-		DefaultMutableTreeNode pNode = SalomeTMFPanels.getTestDynamicTree()
-				.getSelectedNode();
-		if (pNode == null) {
-			return;
-		} else {
-			SimpleData pData = (SimpleData) pNode.getUserObject();
-			if (pData instanceof Family) {
-				pFamily = (Family) pData;
-			} else if (pData instanceof TestList) {
-				pTestList = (TestList) pData;
-			} else if (pData instanceof Test) {
-				pTest = (Test) pData;
-			}
-		}
-
-		if (pTestList == null) {
-			if (pTest != null) {
-				pTestList = pTest.getTestListFromModel();
-			}
-			if (pTestList == null && pFamily != null) {
-				pTestList = new TestList("tmp", "JUNIT TEST SUITE");
-			}
-		}
-
-		if (pTestList != null) {
-			Util.log("Test List selected = " + pTestList.getNameFromModel());
-			JMeterTester pJunitTester = new JMeterTester(null, true, pProject,
-					true, "", "", "", "");
-			if (pJunitTester.execute()) {
-				Util.log("[JMeterIntegrationPlugin:editTest] ok pressed");
-				Attachment pNewattach = pJunitTester.getNewAttachment();
-				Attachment pSelectedattach = pJunitTester
-						.getSelectedAttachment();
-				if (pSelectedattach != null) {
-					if (pSelectedattach.equals(pNewattach)) {
-						if (!addAttachmentToProject(pNewattach,
-								DataModel.getCurrentProject()))
-							return;
-
-					}
-				}
-				
-				try {
-					if (!pTestList.isInBase()) {
-						pTestList.updateInModel(pJunitTester.getJunitClass(),
-								"JMETER TEST SUITE");
-						pFamily.addTestListInDB(pTestList);
-					}
-					/*currentJunitAnalyser.createBeanShellJunitTest(
-							pSelectedattach, pJunitTester.getJunitClass(),
-							pTestList);*/
-				} catch (Exception e) {
-					Tools.ihmExceptionView(e);
-				}
-			}
-		}
-	}
-
 	/********************* interface common ********************/
 
 	String getTestName(String name, TestList pSuite, int index) {
